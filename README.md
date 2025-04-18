@@ -34,7 +34,7 @@ A modern web application for converting, resizing, and optimizing images. Built 
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/image-converter.git
+git clone https://github.com/nfpocket/image-converter.git
 cd image-converter
 ```
 
