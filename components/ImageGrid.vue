@@ -5,10 +5,22 @@
       :key="index"
       class="relative group space-y-2"
     >
-      <img
-        :src="image.preview"
-        class="w-full h-32 object-cover rounded-lg shadow-sm dark:shadow-gray-800"
-      />
+      <div class="relative">
+        <img
+          :src="image.preview"
+          class="w-full h-32 object-cover rounded-lg shadow-sm dark:shadow-gray-800"
+          :class="{ 'opacity-50': image.isConverting }"
+        />
+        <div
+          v-if="image.isConverting"
+          class="absolute inset-0 flex items-center justify-center"
+        >
+          <UIcon
+            name="i-heroicons-arrow-path"
+            class="w-6 h-6 text-primary-500 dark:text-primary-400 animate-spin"
+          />
+        </div>
+      </div>
       <div class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
         <p>Format: {{ image.file.type.split('/')[1].toUpperCase() }}</p>
         <p>Size: {{ formatFileSize(image.file.size) }}</p>
@@ -29,9 +41,10 @@
         </UButton>
         <UButton
           size="xs"
-          color="red"
+          color="error"
           variant="soft"
           icon="i-heroicons-x-mark"
+          :disabled="image.isConverting"
           @click="$emit('remove', index)"
         />
       </div>

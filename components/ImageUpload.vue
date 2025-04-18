@@ -15,7 +15,7 @@
     <div class="space-y-6">
       <div
         class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-8 text-center hover:border-primary-500 transition-colors relative min-h-[200px] flex flex-col items-center justify-center"
-        :class="{ 'border-primary-500 bg-primary-50 dark:bg-primary-900/20': isDragging }"
+        :class="{ 'border-primary-500 bg-primary-50 dark:bg-primary-900/20': isDragging || isProcessing }"
         @click="triggerFileInput"
         @dragover.prevent="handleDragOver"
         @dragleave.prevent="handleDragLeave"
@@ -30,7 +30,17 @@
           id="file-upload"
           ref="fileInput"
         />
-        <div class="text-center">
+        
+        <div v-if="isProcessing" class="text-center">
+          <UIcon
+            name="i-heroicons-arrow-path"
+            class="w-12 h-12 text-primary-500 dark:text-primary-400 mx-auto mb-4 animate-spin"
+          />
+          <p class="text-gray-600 dark:text-gray-400 mb-2">Processing images...</p>
+          <p class="text-sm text-gray-500 dark:text-gray-500">This might take a moment</p>
+        </div>
+        
+        <div v-else class="text-center">
           <UIcon
             name="i-heroicons-photo"
             class="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4"
@@ -66,6 +76,7 @@ const emit = defineEmits<{
 
 const fileInput = ref<HTMLInputElement | null>(null);
 const isDragging = ref(false);
+const isProcessing = ref(false);
 
 const triggerFileInput = () => {
   fileInput.value?.click();
@@ -98,33 +109,40 @@ const handleFileUpload = (event: Event) => {
   processFiles(input.files);
 };
 
-const processFiles = (files: FileList) => {
+const processFiles = async (files: FileList) => {
+  isProcessing.value = true;
   const fileArray = Array.from(files);
   const newImages = [...props.modelValue];
   let processedCount = 0;
 
-  fileArray.forEach((file) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        newImages.push({
-          file,
-          preview: e.target?.result as string,
-          originalAspectRatio: img.width / img.height,
-          originalWidth: img.width,
-          originalHeight: img.height,
-        });
-        
-        processedCount++;
-        if (processedCount === fileArray.length) {
-          emit('update:modelValue', newImages);
-        }
-      };
-      img.src = e.target?.result as string;
-    };
-    reader.readAsDataURL(file);
-  });
+  try {
+    await Promise.all(fileArray.map((file) => {
+      return new Promise<void>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            newImages.push({
+              file,
+              preview: e.target?.result as string,
+              originalAspectRatio: img.width / img.height,
+              originalWidth: img.width,
+              originalHeight: img.height,
+            });
+            
+            processedCount++;
+            resolve();
+          };
+          img.src = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+      });
+    }));
+
+    emit('update:modelValue', newImages);
+  } finally {
+    isProcessing.value = false;
+  }
 };
 
 const removeImage = (index: number) => {

@@ -150,6 +150,8 @@ const convertAndDownloadAll = async () => {
   try {
     // If there's only one image, download it directly without creating a zip
     if (uploadedImages.value.length === 1) {
+      // Set converting state for the single image
+      uploadedImages.value[0].isConverting = true;
       const blob = await convertImage(uploadedImages.value[0], settings.value);
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -161,10 +163,14 @@ const convertAndDownloadAll = async () => {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+      uploadedImages.value[0].isConverting = false;
       return;
     }
 
     // For multiple images, create a zip
+    // Set converting state for all images
+    uploadedImages.value.forEach(img => img.isConverting = true);
+    
     const zip = new JSZip();
     const convertedBlobs = await Promise.all(uploadedImages.value.map((image) => convertImage(image, settings.value)));
 
@@ -190,6 +196,8 @@ const convertAndDownloadAll = async () => {
     console.error("Error converting images:", error);
   } finally {
     isConverting.value = false;
+    // Reset converting state for all images
+    uploadedImages.value.forEach(img => img.isConverting = false);
   }
 };
 </script>
