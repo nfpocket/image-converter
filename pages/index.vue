@@ -62,10 +62,12 @@ const uploadedImages = ref<ImageFile[]>([]);
 const isConverting = ref(false);
 
 const defaultSettings: ConversionSettings = {
+  mode: 'format-only',
   format: "webp",
   width: 800,
   height: 600,
   maintainAspectRatio: true,
+  keepOriginalSize: false,
   scalePercentage: 100,
   // Expert mode defaults
   quality: 0.8,
@@ -77,12 +79,30 @@ const settings = ref<ConversionSettings>({ ...defaultSettings });
 
 const firstImageAspectRatio = computed(() => uploadedImages.value[0]?.originalAspectRatio);
 
-// Watch for changes in the first image's aspect ratio and update settings accordingly
-watch(firstImageAspectRatio, (newAspectRatio) => {
-  if (newAspectRatio) {
-    // Update original dimensions
-    settings.value.originalWidth = uploadedImages.value[0]?.originalWidth;
-    settings.value.originalHeight = uploadedImages.value[0]?.originalHeight;
+// Watch for changes in the first image to update dimensions
+watch(() => uploadedImages.value[0], (newImage) => {
+  if (newImage) {
+    // Store original dimensions
+    settings.value.originalWidth = newImage.originalWidth;
+    settings.value.originalHeight = newImage.originalHeight;
+    
+    // If keep original size is enabled, use original dimensions
+    if (settings.value.keepOriginalSize) {
+      settings.value.width = newImage.originalWidth!;
+      settings.value.height = newImage.originalHeight!;
+    } else if (settings.value.maintainAspectRatio) {
+      // If maintaining aspect ratio, adjust height based on current width
+      settings.value.height = Math.round(settings.value.width / newImage.originalAspectRatio!);
+    }
+  }
+}, { immediate: true });
+
+// Watch for changes in keepOriginalSize
+watch(() => settings.value.keepOriginalSize, (keepOriginal) => {
+  if (keepOriginal && uploadedImages.value[0]) {
+    // Restore original dimensions
+    settings.value.width = uploadedImages.value[0].originalWidth!;
+    settings.value.height = uploadedImages.value[0].originalHeight!;
   }
 });
 
@@ -101,10 +121,24 @@ const resetAll = () => {
 };
 
 const convertImage = async (image: ImageFile, settings: ConversionSettings) => {
+  // For format-only mode, just change the format without any compression
+  if (settings.mode === 'format-only') {
+    return new Blob([await image.file.arrayBuffer()], { type: `image/${settings.format}` });
+  }
+
   const options = {
-    maxWidthOrHeight: Math.max(settings.width, settings.height),
+    // Only apply size constraints for resize mode or when not keeping original size in compress mode
+    maxWidthOrHeight: (settings.mode === 'resize' || (settings.mode === 'compress' && !settings.keepOriginalSize)) 
+      ? Math.max(settings.width, settings.height) 
+      : undefined,
     useWebWorker: true,
-    maintainAspectRatio: settings.maintainAspectRatio,
+    // Only apply compression settings in compress mode
+    ...(settings.mode === 'compress' && {
+      maxSizeMB: settings.maxSizeMB,
+      quality: settings.quality,
+    }),
+    // Apply lossless for WebP in any mode if set in expert mode
+    ...(settings.format === 'webp' && { lossless: settings.lossless }),
   };
 
   const compressedBlob = await imageCompression(image.file, options);
@@ -114,11 +148,32 @@ const convertImage = async (image: ImageFile, settings: ConversionSettings) => {
 const convertAndDownloadAll = async () => {
   isConverting.value = true;
   try {
+    // If there's only one image, download it directly without creating a zip
+    if (uploadedImages.value.length === 1) {
+      const blob = await convertImage(uploadedImages.value[0], settings.value);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      const originalName = uploadedImages.value[0].file.name;
+      const baseName = originalName.replace(/\.[^/.]+$/, "");
+      link.download = `${baseName}.${settings.value.format}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      return;
+    }
+
+    // For multiple images, create a zip
     const zip = new JSZip();
     const convertedBlobs = await Promise.all(uploadedImages.value.map((image) => convertImage(image, settings.value)));
 
     convertedBlobs.forEach((blob, index) => {
-      const fileName = `converted-image-${index + 1}.${settings.value.format}`;
+      const originalName = uploadedImages.value[index].file.name;
+      const extension = settings.value.format;
+      // Remove the original extension and add the new one
+      const baseName = originalName.replace(/\.[^/.]+$/, "");
+      const fileName = `${baseName}.${extension}`;
       zip.file(fileName, blob);
     });
 

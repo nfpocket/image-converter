@@ -8,11 +8,15 @@ export interface ImageFile {
   originalHeight?: number;
 }
 
+export type ConversionMode = 'format-only' | 'resize' | 'compress';
+
 export interface ConversionSettings {
+  mode: ConversionMode;
   format: string;
   width: number;
   height: number;
   maintainAspectRatio: boolean;
+  keepOriginalSize: boolean;
   scalePercentage?: number;
   originalWidth?: number;
   originalHeight?: number;
