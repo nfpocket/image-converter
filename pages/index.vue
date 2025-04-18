@@ -1,10 +1,10 @@
 <template>
-  <UContainer class="py-12">
-    <div class="max-w-3xl mx-auto space-y-8">
+  <UContainer class="py-16">
+    <div class="max-w-2xl mx-auto space-y-12">
       <div class="flex justify-between items-start">
-        <div class="space-y-2">
-          <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100">Image Converter</h1>
-          <p class="text-gray-600 dark:text-gray-400">Convert and resize your images with ease</p>
+        <div class="space-y-1">
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Image Converter</h1>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Convert and resize your images with ease</p>
         </div>
         <ColorModeToggle />
       </div>
@@ -20,7 +20,7 @@
       />
 
       <!-- Action Buttons -->
-      <div class="flex justify-center gap-4">
+      <div class="flex justify-center gap-3">
         <UButton
           color="primary"
           :disabled="!canConvert"
@@ -71,6 +71,15 @@ const defaultSettings: ConversionSettings = {
 const settings = ref<ConversionSettings>({ ...defaultSettings });
 
 const firstImageAspectRatio = computed(() => uploadedImages.value[0]?.originalAspectRatio);
+
+// Watch for changes in the first image's aspect ratio and update settings accordingly
+watch(firstImageAspectRatio, (newAspectRatio) => {
+  if (newAspectRatio) {
+    // Update original dimensions
+    settings.value.originalWidth = uploadedImages.value[0]?.originalWidth;
+    settings.value.originalHeight = uploadedImages.value[0]?.originalHeight;
+  }
+});
 
 const canConvert = computed(() => uploadedImages.value.length > 0);
 const canReset = computed(() => {

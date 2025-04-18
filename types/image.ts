@@ -13,4 +13,6 @@ export interface ConversionSettings {
   width: number;
   height: number;
   maintainAspectRatio: boolean;
+  originalWidth?: number;
+  originalHeight?: number;
 } 
