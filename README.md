@@ -1,75 +1,114 @@
-# Nuxt Minimal Starter
+# Image Converter
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A modern web application for converting, resizing, and optimizing images. Built with Nuxt 3 and Vue.js.
+
+## Features
+
+- **Multiple Conversion Modes**:
+  - **Format Only**: Simply convert between image formats
+  - **Resize**: Change image dimensions while optionally maintaining aspect ratio
+  - **Compress**: Optimize images with quality and file size controls
+
+- **Supported Formats**:
+  - Convert to WebP (modern, efficient format)
+  - Convert to PNG (lossless format)
+  - WebP specific options like lossless compression
+
+- **Batch Processing**:
+  - Convert multiple images at once
+  - Automatic ZIP creation for multiple files
+  - Preserves original filenames
+
+- **Advanced Options**:
+  - Maintain aspect ratio during resizing
+  - Quality control for compression
+  - Maximum file size limits
+  - Original size preservation option
+
+## Prerequisites
+
+- Node.js 16.x or later
+- npm, yarn, or pnpm
 
 ## Setup
 
-Make sure to install dependencies:
-
+1. Clone the repository:
 ```bash
-# npm
+git clone https://github.com/yourusername/image-converter.git
+cd image-converter
+```
+
+2. Install dependencies:
+```bash
+# Using npm
 npm install
 
-# pnpm
-pnpm install
-
-# yarn
+# Using yarn
 yarn install
 
-# bun
-bun install
+# Using pnpm
+pnpm install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
+3. Start the development server:
 ```bash
-# npm
+# Using npm
 npm run dev
 
-# pnpm
-pnpm dev
-
-# yarn
+# Using yarn
 yarn dev
 
-# bun
-bun run dev
+# Using pnpm
+pnpm dev
 ```
 
-## Production
+The application will be available at `http://localhost:8088`.
 
-Build the application for production:
+## Building for Production
 
+1. Build the application:
 ```bash
-# npm
+# Using npm
 npm run build
 
-# pnpm
-pnpm build
-
-# yarn
+# Using yarn
 yarn build
 
-# bun
-bun run build
+# Using pnpm
+pnpm build
 ```
 
-Locally preview production build:
-
+2. Preview the production build:
 ```bash
-# npm
+# Using npm
 npm run preview
 
-# pnpm
-pnpm preview
-
-# yarn
+# Using yarn
 yarn preview
 
-# bun
-bun run preview
+# Using pnpm
+pnpm preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Technology Stack
+
+- [Nuxt 3](https://nuxt.com/) - The Vue.js Framework
+- [Vue.js 3](https://vuejs.org/) - Progressive JavaScript Framework
+- [Nuxt UI](https://ui.nuxt.com/) - UI Component Library
+- [browser-image-compression](https://www.npmjs.com/package/browser-image-compression) - Client-side image compression
+- [JSZip](https://stuk.github.io/jszip/) - Creating ZIP files in the browser
+
+## Browser Support
+
+The application works best in modern browsers that support:
+- WebP format
+- File System Access API
+- Modern JavaScript features
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## Author
+
+Norman Feiß ([@nfpocket](https://github.com/nfpocket))
