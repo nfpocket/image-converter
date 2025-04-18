@@ -66,6 +66,11 @@ const defaultSettings: ConversionSettings = {
   width: 800,
   height: 600,
   maintainAspectRatio: true,
+  scalePercentage: 100,
+  // Expert mode defaults
+  quality: 0.8,
+  maxSizeMB: 1,
+  lossless: false,
 };
 
 const settings = ref<ConversionSettings>({ ...defaultSettings });

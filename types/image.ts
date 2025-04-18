@@ -13,6 +13,11 @@ export interface ConversionSettings {
   width: number;
   height: number;
   maintainAspectRatio: boolean;
+  scalePercentage?: number;
   originalWidth?: number;
   originalHeight?: number;
+  // Expert mode settings
+  quality: number;
+  maxSizeMB: number;
+  lossless: boolean;
 } 
