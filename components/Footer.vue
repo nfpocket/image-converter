@@ -1,13 +1,12 @@
 <template>
-  <div class="pt-8 mt-8 border-t border-gray-200 dark:border-gray-800">
-    <div class="flex flex-col items-center text-center text-sm text-gray-500 dark:text-gray-400">
-      <p>Built with ❤️ using Nuxt.js and UDesign</p>
-      <p class="mt-1">
-        © 2024 Image Converter. All rights reserved. Created by
+  <div class="pt-6 mt-8 border-t border-gray-200 dark:border-gray-800">
+    <div class="flex flex-col items-center text-center text-xs text-gray-400 dark:text-gray-500">
+      <p>
+        Built with ❤️ using Nuxt.js by
         <UButton
           to="https://github.com/nfpocket"
           target="_blank"
-          color="gray"
+          color="neutral"
           variant="link"
           class="px-1"
         >
@@ -16,4 +15,4 @@
       </p>
     </div>
   </div>
-</template> 
+</template>
